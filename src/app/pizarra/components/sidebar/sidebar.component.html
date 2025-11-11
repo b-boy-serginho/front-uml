@@ -1,0 +1,75 @@
+<div class="sidebar-container" [class.expanded]="isExpanded">
+  <!-- Sidebar colapsado (iconos) -->
+  <div class="sidebar-collapsed">
+    <!-- Header con logo/icono -->
+    <div class="sidebar-header">
+      <div class="logo-icon">
+        <span class="logo-text">B</span>
+      </div>
+    </div>
+
+    <!-- Menú de iconos -->
+    <nav class="sidebar-nav">
+      <div *ngFor="let item of menuItems" class="nav-item" [class.active]="isActive(item.id)" (click)="selectItem(item)"
+        [title]="item.label">
+        <span class="nav-icon">{{ item.icon }}</span>
+      </div>
+    </nav>
+
+    <!-- Usuario en la parte inferior -->
+    <div class="sidebar-footer">
+      <div class="user-avatar">
+        <img
+          src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiMzNDk1ZTYiLz4KPHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSI4IiByPSIzIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJtNiAyMXYtMmE0IDQgMCAwIDEgNC00aDRhNCA0IDAgMCAxIDQgNHYyIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4KPC9zdmc+"
+          alt="Usuario" class="avatar-img">
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar expandido (con texto) -->
+  <div class="sidebar-expanded" *ngIf="isExpanded">
+    <!-- Header expandido -->
+    <!-- <div class="sidebar-header-expanded">
+      <div class="logo-expanded">
+        <span class="logo-icon-expanded">B</span>
+        <span class="logo-title">Sidebar</span>
+      </div>
+    </div> -->
+
+    <!-- Menú expandido -->
+   <!--  <nav class="sidebar-nav-expanded">
+
+    </nav> -->
+
+    <!-- Contenido dinámico según el ítem seleccionado -->
+    <div class="sidebar-content" *ngIf="activeItemId === 'classes'">
+      <app-clase [selectedClass]="selectedClass" [classes]="classes" (addAttribute)="onClassAddAttribute($event)"
+        (updateAttribute)="onClassUpdateAttribute($event)" (deleteAttribute)="onClassDeleteAttribute($event)"
+        (addMethod)="onClassAddMethod($event)" (updateMethod)="onClassUpdateMethod($event)"
+        (deleteMethod)="onClassDeleteMethod($event)" (updateClassName)="onClassUpdateClassName($event)"
+        (selectClass)="onClassSelect($event)" (closePanelEvent)="onCloseClassPanel()">
+      </app-clase>
+    </div>
+
+    <!-- Chat colaborativo -->
+    <div class="sidebar-content" *ngIf="activeItemId === 'chat'">
+      <app-chat (diagramRequested)="onDiagramRequested($event)"></app-chat>
+    </div>
+  </div>
+
+
+  <!-- Usuario expandido -->
+  <!--  <div class="sidebar-footer-expanded">
+      <div class="user-info">
+        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiMzNDk1ZTYiLz4KPHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSI4IiByPSIzIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJtNiAyMXYtMmE0IDQgMCAwIDEgNC00aDRhNCA0IDAgMCAxIDQgNHYyIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4KPC9zdmc+" 
+             alt="Usuario" 
+             class="user-avatar-expanded">
+        <div class="user-details">
+          <span class="user-name">mdo</span>
+          <button class="user-dropdown">
+            <span>▼</span>
+          </button>
+        </div>
+      </div>
+    </div> -->
+</div>

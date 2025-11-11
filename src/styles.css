@@ -1,0 +1,112 @@
+
+:root {
+  --global-bg: #f9faf8;
+  --global-text: #333;
+  --bg-primary: #f8f9fa;
+  --bg-secondary: #ecf5f6;
+  --bg-tertiary: #f8f9fa;
+  --border-primary: #dee2e6;
+  --border-secondary: #24b71f;
+  --text-primary: #333;
+  --text-secondary: #495057;
+  --text-tertiary: #6c757d;
+  --text-cuaternary: #ffffff;
+  --shadow-primary: rgba(0,0,0,0.15);
+  --shadow-secondary: rgba(0,0,0,0.1);
+  --grid-color: rgba(0,0,0,0.05);
+  --btn-primary-bg: #007bff;
+  --btn-primary-hover: #0056b3;
+  --btn-secondary-bg: #6c757d;
+  --btn-secondary-hover: #5a6268;
+  --btn-danger-bg: #dc3545;
+  --btn-danger-hover: #c82333;
+  --btn-info-bg: #17a2b8;
+  --btn-info-hover: #138496;
+  --btn-success-bg: #28a745;
+  --btn-success-hover: #218838;  
+  --modal-bg: rgba(0, 0, 0, 0.5);
+  
+  /* Variables para el modal de propiedades de relación */
+  --card-bg: #ffffff;
+  --border-color: #dee2e6;
+  --primary-color: #007bff;
+  --secondary-color: #f8f9fa;
+  --text-color: #333333;
+  --input-bg: #ffffff;
+}
+
+/* Variables de colores para tema oscuro */
+[data-theme="dark"] {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-tertiary: #363636;
+  --border-primary: #404040;
+  --border-secondary: #555555;
+  --text-primary: #ffffff;
+  --text-secondary: #e0e0e0;
+  --text-tertiary: #b0b0b0;
+  --shadow-primary: rgba(0,0,0,0.3);
+  --shadow-secondary: rgba(0,0,0,0.2);
+  --grid-color: rgba(255,255,255,0.1);
+  --btn-primary-bg: #4299e1;
+  --btn-primary-hover: #3182ce;
+  --btn-secondary-bg: #4a5568;
+  --btn-secondary-hover: #2d3748;
+  --btn-danger-bg: #e53e3e;
+  --btn-danger-hover: #c53030;
+  --btn-info-bg: #319795;
+  --btn-info-hover: #2c7a7b;
+  --btn-success-bg: #050706;
+  --btn-success-hover: #373a38;
+  --modal-bg: rgba(0, 0, 0, 0.7);
+  
+  /* Variables para el modal de propiedades de relación - tema oscuro */
+  --card-bg: #2d2d2d;
+  --border-color: #404040;
+  --primary-color: #4299e1;
+  --secondary-color: #363636;
+  --text-color: #ffffff;
+  --input-bg: #1a1a1a;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f8f9fa;
+}
+
+html, body {
+  height: 100%;
+}
+
+/* Estilos para inputs en general */
+input, select, textarea {
+  font-family: inherit;
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

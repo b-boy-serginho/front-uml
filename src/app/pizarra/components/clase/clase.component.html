@@ -1,0 +1,131 @@
+<div class="clase-panel">
+    <div class="panel-header">
+        <h3>Gestión de Clases</h3>
+        <button class="close-panel-btn" (click)="closePanel()">×</button>
+    </div>
+
+    <!-- Selector de clase -->
+    <div class="class-selector">
+        <label>Seleccionar Clase:</label>
+        <select [(ngModel)]="selectedClassId" (change)="onClassSelection(selectedClassId!)" class="form-select">
+            <option value="">-- Seleccionar clase --</option>
+            <option *ngFor="let umlClass of classes" [value]="umlClass.id">
+                {{ umlClass.name }}
+            </option>
+        </select>
+    </div>
+
+    <!-- Panel de edición de clase -->
+    <div class="class-editor" *ngIf="selectedClass && selectedClassId">
+        <!-- Nombre de la clase -->
+        <div class="class-name-section">
+            <label>Nombre de la Clase:</label>
+            <input 
+                [(ngModel)]="selectedClass.name" 
+                (blur)="onUpdateClassName(selectedClass.name)"
+                (keyup.enter)="onUpdateClassName(selectedClass.name)"
+                class="class-name-input"
+                placeholder="Nombre de la clase">
+        </div>
+
+        <!-- Sección de Atributos -->
+        <div class="section">
+            <div class="section-header">
+                <h4>Atributos</h4>
+                <button (click)="onAddAttribute()" class="btn-add">+ Agregar Atributo</button>
+            </div>
+            
+            <div class="attributes-list">
+                <div *ngFor="let attr of selectedClass.attributes; trackBy: trackByAttributeId" 
+                     class="attribute-item">
+                    <div class="attribute-row">
+                        <p>Visibilidad:</p>
+                        <select [(ngModel)]="attr.visibility" 
+                                (change)="onUpdateAttribute(attr.id)"
+                                class="visibility-select">
+                            <option value="public">+ Public</option>
+                            <option value="private">- Private</option>
+                            <option value="protected"># Protected</option>
+                            <option value="package">~ Package</option>
+                        </select>
+                        <p>Nombre:</p>
+                        <input [(ngModel)]="attr.name" 
+                               (blur)="onUpdateAttribute(attr.id)"
+                               class="attr-name" 
+                               placeholder="nombre">
+
+                        <p>Tipo:</p>
+
+                        <select [(ngModel)]="attr.type" 
+                                (change)="onUpdateAttribute(attr.id)"
+                                class="attr-type">
+                            <option value="">-- Seleccionar tipo --</option>
+                            <option value="String">String</option>
+                            <option value="Integer">Integer</option>
+                            <option value="Long">Long</option>
+                            <option value="Double">Double</option>
+                            <option value="Float">Float</option>
+                            <option value="Boolean">Boolean</option>
+                            <option value="Date">Date</option>
+                           </select>
+                        
+                        <button (click)="onDeleteAttribute(attr.id)" 
+                                class="btn-delete">×</button>
+                    </div>
+                </div>
+                
+                <div class="empty-message" *ngIf="selectedClass.attributes.length === 0">
+                    No hay atributos. Haz clic en "Agregar Atributo" para añadir uno.
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Métodos -->
+        <div class="section">
+            <div class="section-header">
+                <h4>Métodos</h4>
+                <button (click)="onAddMethod()" class="btn-add">+ Agregar Método</button>
+            </div>
+            
+            <div class="methods-list">
+                <div *ngFor="let method of selectedClass.methods; trackBy: trackByMethodId" 
+                     class="method-item">
+                    <div class="method-row">
+                        <select [(ngModel)]="method.visibility" 
+                                (change)="onUpdateMethod(method.id)"
+                                class="visibility-select">
+                            <option value="public">+ Public</option>
+                            <option value="private">- Private</option>
+                            <option value="protected"># Protected</option>
+                            <option value="package">~ Package</option>
+                        </select>
+                        
+                        <input [(ngModel)]="method.name" 
+                               (blur)="onUpdateMethod(method.id)"
+                               class="method-name" 
+                               placeholder="nombre">
+                        
+                        <span class="method-params">()</span>
+                        <span class="separator">:</span>
+                        
+                        <input [(ngModel)]="method.returnType" 
+                               (blur)="onUpdateMethod(method.id)"
+                               class="method-return" 
+                               placeholder="tipo retorno">
+                        
+                        <button (click)="onDeleteMethod(method.id)" 
+                                class="btn-delete">×</button>
+                    </div>
+                </div>
+                
+                <div class="empty-message" *ngIf="selectedClass.methods!.length === 0">
+                    No hay métodos. Haz clic en "Agregar Método" para añadir uno.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="no-class-selected" *ngIf="!selectedClass || !selectedClassId">
+        <p>Selecciona una clase para editar sus propiedades</p>
+    </div>
+</div>

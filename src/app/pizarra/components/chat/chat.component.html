@@ -1,0 +1,120 @@
+<div class="chat-container">
+  <!-- Header del chat -->
+  <div class="chat-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="chat-icon">💬</div>
+        <div class="header-info">
+          <h3 class="chat-title">Chat Asistente</h3>
+          <!--   <p class="chat-subtitle">{{ connectedUsers.length }} usuario{{ connectedUsers.length !== 1 ? 's' : '' }} conectado{{ connectedUsers.length !== 1 ? 's' : '' }}</p>
+         -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Área de mensajes -->
+  <div class="messages-container" #messagesContainer>
+    <div class="messages-wrapper">
+      <div *ngFor="let message of messages" class="message-row" [class.own-message]="isUserMessage(message)">
+
+        <!-- Avatar del asistente -->
+        <div class="message-avatar" *ngIf="!isUserMessage(message)" style="background-color: #667eea; ">
+          🤖
+        </div>
+        <!-- Contenido del mensaje -->
+        <div class="message-bubble" [class.own-bubble]="isUserMessage(message)">
+          <div class="message-author" *ngIf="!isUserMessage(message)">
+            Asistente IA
+          </div>
+
+          <!-- Mensaje de texto -->
+          <div class="message-content">
+            {{ message.content }}
+          </div>
+          <!-- Timestamp -->
+          <div class="message-timestamp">
+            {{ formatTime(message.timestamp) }}
+          </div>
+        </div>
+      </div>
+      <!-- Mensaje vacío para scroll -->
+      <div class="scroll-anchor"></div>
+    </div>
+  </div>
+
+  <!-- Selector de emojis -->
+  <div class="emoji-picker" *ngIf="showEmojiPicker">
+    <div class="emoji-grid">
+      <button *ngFor="let emoji of emojis" class="emoji-btn" (click)="addEmoji(emoji)">
+        {{ emoji }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Área de entrada -->
+  <div class="chat-input-container">
+    <!-- Indicador de procesamiento IA -->
+    <div class="recording-indicator" *ngIf="isAIProcessing">
+      <div class="recording-dot"></div>
+      <span class="recording-text">Procesando con IA...</span>
+    </div>
+     <div class="recording-indicator recording-active" *ngIf="isRecording">
+      <div class="recording-dot recording-pulse"></div>
+      <span class="recording-text">Grabando... {{ formatRecordingTime(recordingTime) }}</span>
+      <button class="cancel-recording-btn" (click)="cancelRecording()" title="Cancelar grabación">
+        ❌
+      </button>
+    </div>
+
+    <!-- Input de mensaje -->
+    <div class="input-wrapper" *ngIf="!isAIProcessing">
+      <!-- Botones de acciones -->
+      <div class="inputs">
+        <div class="input-actions-left">
+          <button class="action-btn" (click)="eliminarMensaje()" title="Eliminar mensaje">
+            🗑️
+          </button>
+        </div>
+        <div class="input-actions-left">
+          <button class="action-btn" (click)="fileInput.click()" title="Adjuntar imagen">
+            🖼️
+          </button>
+          <button class="action-btn" (click)="toggleRecording()" title="Grabar audio">
+          🎤
+        </button>
+          <!-- Input oculto para imágenes -->
+          <input #fileInput type="file" accept="image/*" (change)="onImageSelected($event)" style="display: none;">
+          <!-- Input oculto para audio -->
+       
+
+
+        </div>
+      </div>
+       <div class="file-preview" *ngIf="selectedFile && selectedFilePreview">
+        <div class="preview-content">
+          <img [src]="selectedFilePreview" alt="Vista previa" class="preview-image">
+          <button class="remove-preview-btn" (click)="removeSelectedFile()" title="Quitar imagen">
+            ❌
+          </button>
+        </div>
+      </div>
+
+      <div class="mensaje-area">
+        <textarea #messageTextarea class="message-input" [(ngModel)]="newMessage" (input)="onMessageInput($event)"
+          (keypress)="onMessageKeyPress($event)"
+          placeholder="Escribe un mensaje... (Ej: crea un diagrama de usuario y producto)" rows="3"></textarea>
+
+        <!-- Botones de envío -->
+        <div class="input-actions-right">
+          <button class="send-btn" (click)="sendMessage()" [disabled]="!newMessage.trim()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13" />
+              <polygon points="22 2 15 22 11 13 2 9 22 2" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

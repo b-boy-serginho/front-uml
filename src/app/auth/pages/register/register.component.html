@@ -1,0 +1,111 @@
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo">⚡ DiagramCode</div>
+            <div class="login-subtitle">Generador de Proyectos</div>
+        </div>
+
+        <div class="login-form">
+            <h2 class="form-title">Crear nueva cuenta</h2>
+            <p class="form-description">Completa los datos para registrarte</p>
+
+            <form id="registerForm" [formGroup]="myForm" (ngSubmit)="register()">
+                <!-- Primera fila: Nombre y Apellido -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="name">Nombre</label>
+                        <input type="text" id="name" class="form-input" formControlName="name" required placeholder="Tu nombre">
+                        <div *ngIf="myForm.get('name')?.invalid && myForm.get('name')?.touched" class="error-text">
+                            <span *ngIf="myForm.get('name')?.errors?.['required']">El nombre es requerido</span>
+                            <span *ngIf="myForm.get('name')?.errors?.['minlength']">Mínimo 2 caracteres</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="lastName">Apellido</label>
+                        <input type="text" id="lastName" class="form-input" formControlName="lastName" required placeholder="Tu apellido">
+                        <div *ngIf="myForm.get('lastName')?.invalid && myForm.get('lastName')?.touched" class="error-text">
+                            <span *ngIf="myForm.get('lastName')?.errors?.['required']">El apellido es requerido</span>
+                            <span *ngIf="myForm.get('lastName')?.errors?.['minlength']">Mínimo 2 caracteres</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Segunda fila: Nombre de usuario y Email -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="userName">Nombre de usuario</label>
+                        <input type="text" id="userName" class="form-input" formControlName="userName" required placeholder="usuario123">
+                        <div *ngIf="myForm.get('userName')?.invalid && myForm.get('userName')?.touched" class="error-text">
+                            <span *ngIf="myForm.get('userName')?.errors?.['required']">El usuario es requerido</span>
+                            <span *ngIf="myForm.get('userName')?.errors?.['minlength']">Mínimo 3 caracteres</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="email">Correo electrónico</label>
+                        <input type="email" id="email" class="form-input" formControlName="email" required placeholder="ejemplo@gmail.com">
+                        <div *ngIf="myForm.get('email')?.invalid && myForm.get('email')?.touched" class="error-text">
+                            <span *ngIf="myForm.get('email')?.errors?.['required']">El email es requerido</span>
+                            <span *ngIf="myForm.get('email')?.errors?.['email']">Email inválido</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tercera fila: Contraseñas -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="password">Contraseña</label>
+                        <div class="password-container">
+                            <input [type]="showPassword ? 'text' : 'password'" id="password" class="form-input" placeholder="••••••••"
+                                formControlName="password" required>
+                            <span class="toggle-password" (click)="togglePassword()">
+                                {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+                            </span>
+                        </div>
+                        <div *ngIf="myForm.get('password')?.invalid && myForm.get('password')?.touched" class="error-text">
+                            <span *ngIf="myForm.get('password')?.errors?.['required']">La contraseña es requerida</span>
+                            <span *ngIf="myForm.get('password')?.errors?.['minlength']">Mínimo 6 caracteres</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="confirmPassword">Confirmar contraseña</label>
+                        <div class="password-container">
+                            <input [type]="showConfirmPassword ? 'text' : 'password'" id="confirmPassword" class="form-input" placeholder="••••••••"
+                                formControlName="confirmPassword" required>
+                            <span class="toggle-password" (click)="toggleConfirmPassword()">
+                                {{ showConfirmPassword ? '👁️' : '👁️‍🗨️' }}
+                            </span>
+                        </div>
+                        <div *ngIf="myForm.get('confirmPassword')?.invalid && myForm.get('confirmPassword')?.touched" class="error-text">
+                            <span *ngIf="myForm.get('confirmPassword')?.errors?.['required']">Confirma tu contraseña</span>
+                            <span *ngIf="myForm.get('confirmPassword')?.errors?.['passwordMismatch']">Las contraseñas no coinciden</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="color: red;margin-bottom: 25px;" *ngIf="errorMessage">
+                    <span>{{ errorMessage }}</span>
+                </div>
+
+                <div class="form-options">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="terms" required>
+                        <span>Acepto los <a href="#" class="forgot-password">términos y condiciones</a></span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-login" [disabled]="myForm.invalid">Registrarse</button>
+            </form>
+
+            <div class="divider">
+                <span>O continúa con</span>
+            </div>
+
+            <div class="register-link">
+                ¿Ya tienes una cuenta? <a href="#" routerLink="/login">Inicia sesión aquí</a>
+            </div>
+        </div>
+    </div>
+</body>

@@ -1,0 +1,55 @@
+<div class="code-viewer-modal">
+  <div class="header">
+    <h3>Visor de código (ZIP)</h3>
+    <div class="header-actions">
+      <button 
+        *ngIf="isFlutterProject" 
+        (click)="openInDartpad()"
+        class="btn btn-primary"
+        title="Consolidar y ejecutar proyecto Flutter en DartPad">
+        🚀 Abrir Flutter en DartPad
+      </button>
+      <button class="close-btn" (click)="onClose()">Cerrar</button>
+    </div>
+  </div>
+  <div class="body">
+    <div class="file-tree">
+      <div class="explorer-header">EXPLORER</div>
+      <ul class="tree-root">
+        <ng-template #recursiveList let-nodes>
+          <ng-container *ngFor="let node of nodes">
+            <li class="tree-node" [class.folder]="node.isDir">
+              <div class="node-row" (click)="node.isDir ? toggleFolder(node, $event) : selectFile(node.path)"
+                   [class.selected]="!node.isDir && currentFile?.path === node.path">
+                <span *ngIf="node.isDir" class="expander">{{ node.expanded ? '▾' : '▸' }}</span>
+                <span class="node-icon">{{ node.isDir ? '📁' : '📄' }}</span>
+                <span class="node-label">{{ node.name }}</span>
+              </div>
+              <ul *ngIf="node.isDir && node.expanded" class="children">
+                <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: node.children }"></ng-container>
+              </ul>
+            </li>
+          </ng-container>
+        </ng-template>
+
+        <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: tree }"></ng-container>
+      </ul>
+    </div>
+    <div class="editor" #editorContainer></div>
+  </div>
+</div>
+
+<!-- Modal para DartPad incrustado -->
+<div class="dartpad-modal" *ngIf="showDartpad">
+  <div class="dartpad-header">
+    <h3>Ejecutar en DartPad</h3>
+    <button class="close-btn" (click)="closeDartpad()">Cerrar</button>
+  </div>
+  <iframe
+    #dartpad
+    src="https://dartpad.dev/embed-flutter.html?theme=dark&run=true"
+    width="100%"
+    height="100%"
+    frameborder="0"
+  ></iframe>
+</div>

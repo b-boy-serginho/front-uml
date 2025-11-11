@@ -1,0 +1,173 @@
+.code-viewer-modal {
+    position: fixed;
+    left: 4%;
+    top: 6%;
+    width: 92%;
+    height: 88%;
+    background: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+}
+
+.code-viewer-modal .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+    background-color: var(--border-primary);
+}
+
+.code-viewer-modal .body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+   
+}
+
+.file-tree {
+    width: 320px;
+    border-right: 1px solid var(--border-primary);
+    overflow: auto;
+    padding: 8px 6px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+}
+
+.explorer-header {
+    font-size: 12px;
+ 
+    color: var(--text-tertiary);
+    padding: 6px 8px;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.tree-root {
+    list-style: none;
+    padding-left: 6px;
+    margin: 6px 0;
+    
+}
+
+.tree-node {
+    padding-left: 6px;
+    
+}
+
+.node-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    
+}
+
+.node-row:hover {
+    /* Usar variable del tema si existe, con fallback suave */
+    background: var(--node-row-hover-bg, rgba(0, 0, 0, 0.03));
+}
+
+.node-row.selected {
+    background: var(--btn-primary-bg);
+    color: var(--text-cuaternary);
+    /* Usar variable para sombra interior (fallback incluido) */
+    box-shadow: var(--selection-inner-shadow, inset 0 0 0 1px rgba(0,0,0,0.06));
+}
+
+.expander {
+    width: 14px;
+    display: inline-block;
+    text-align: center;
+    color: var(--text-tertiary);
+}
+
+.node-icon {
+    width: 18px;
+    display: inline-block;
+    text-align: center;
+}
+
+.node-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.children {
+    list-style: none;
+    margin: 2px 0 2px 12px;
+    padding-left: 4px;
+}
+
+.editor {
+    flex: 1;
+    height: 100%;
+       background-color: var(--border-primary) !important;
+       color: var(--text-primary) !important ;
+}
+
+.editor .monaco-editor {
+    height: 100% !important;
+}
+
+.close-btn {
+    background: var(--btn-danger-bg);
+    color: var(--text-cuaternary);
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Dark theme tweaks when data-theme=dark is enabled on body */
+/* Nota: El tema se controla mediante variables CSS globales; evitar selectores dependientes de data-theme aquí. */
+
+/* Modal para DartPad incrustado */
+.dartpad-modal {
+    position: fixed;
+    left: 2%;
+    top: 3%;
+    width: 96%;
+    height: 94%;
+    background: var(--card-bg);
+    border: 1px solid var(--border-primary);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    z-index: 3000;
+    display: flex;
+    flex-direction: column;
+}
+
+.dartpad-modal .dartpad-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-primary);
+    background: var(--bg-primary);
+}
+
+.dartpad-modal .dartpad-header h3 {
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.dartpad-modal .dartpad-header .close-btn {
+    background: var(--btn-danger-bg);
+    color: var(--text-cuaternary);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.dartpad-modal iframe {
+    flex: 1;
+    border: none;
+}

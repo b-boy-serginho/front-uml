@@ -1,0 +1,59 @@
+<div class="diagram-list-container">
+  <div class="header">
+    <div class="header-left">
+      <button (click)="backToProjects()" class="btn-back">
+        ← Volver a Proyectos
+      </button>
+     <!--  <div class="project-info" *ngIf="project">
+        <h1>📊 Diagramas de: {{ project.name }}</h1>
+        <p>{{ project.description }}</p>
+      </div> -->
+    </div>
+    <div>
+    <button (click)="createNewDiagram()" class="btn btn-primary">
+      <span class="icon">➕</span> Nuevo Diagrama
+    </button>
+    </div>
+  </div>
+
+  <div class="diagrams-grid" *ngIf="diagrams.length > 0">
+    <div *ngFor="let diagram of diagrams" class="diagram-card">
+      <div class="diagram-header">
+        <h3>{{ diagram.name }}</h3>
+        <span class="diagram-type">🗂️ {{ diagram.tipo }}</span>
+      </div>
+      
+      <p class="diagram-description">{{ diagram.description }}</p>
+      
+      <div class="diagram-dates">
+        <small>
+          <strong>Creado:</strong> {{ formatDate(diagram.fecha_creacion) }}
+        </small>
+        <small>
+          <strong>Modificado:</strong> {{ formatDate(diagram.fecha_modificacion) }}
+        </small>
+      </div>
+      
+      <div class="diagram-actions">
+        <button (click)="openDiagram(diagram.id)" class="btn btn-primary btn-large">
+          🎨 Abrir Editor
+        </button>
+        <button (click)="editDiagram(diagram.id)" class="btn btn-secondary">
+          ✏️ Editar
+        </button>
+        <button (click)="deleteDiagram(diagram)" class="btn btn-danger">
+          🗑️ Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="diagrams.length === 0" class="empty-state">
+    <div class="empty-icon">📊</div>
+    <h2>No hay diagramas</h2>
+    <p>Crea tu primer diagrama de clases para este proyecto</p>
+    <button (click)="createNewDiagram()" class="btn btn-primary btn-large">
+      ➕ Crear Primer Diagrama
+    </button>
+  </div>
+</div>

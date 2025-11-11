@@ -1,0 +1,45 @@
+/* ===== RESET GLOBAL ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+
+[data-theme="dark"] {
+  --global-bg: #1a1a1a;
+  --global-text: #ffffff;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--global-bg);
+  color: var(--global-text);
+  overflow: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ===== LAYOUT PRINCIPAL ===== */
+.app-container {
+ 
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ===== CONTENIDO PRINCIPAL ===== */
+.main-content {
+  flex: 1;
+  margin-left: 60px; /* Espacio para el sidebar colapsado */
+  height: 100vh;
+  overflow: hidden;
+  transition: margin-left 0.3s ease;
+}
+
+/* ===== RESPONSIVO ===== */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 50px; /* Sidebar más pequeño en móviles */
+  }
+}

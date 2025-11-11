@@ -1,0 +1,78 @@
+<div class="relation-properties-panel" *ngIf="selectedRelation">
+  <div class="panel-header">
+    <h4>Propiedades de Relación</h4>
+    <button (click)="onClosePanel()" class="close-btn">×</button>
+  </div>
+  <div class="panel-content">
+    <div class="form-group">
+      <label>Tipo:</label>
+      <select [(ngModel)]="selectedRelation.type" 
+              (change)="onUpdateRelation()"
+              class="form-control">
+        <option value="association">Asociación</option>
+        <option value="aggregation">Agregación</option>
+        <option value="composition">Composición</option>
+        <option value="inheritance">Herencia</option>
+        <option value="realization">Realización</option>
+        <option value="dependency">Dependencia</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label>Etiqueta:</label>
+      <input [(ngModel)]="selectedRelation.label" 
+             (blur)="onUpdateRelation()"
+             class="form-control"
+             placeholder="Nombre de la relación">
+    </div>
+    
+    <div class="form-group">
+      <label>Multiplicidad origen:</label>
+      <div class="multiplicity-input-group">
+        <select [(ngModel)]="selectedRelation.multiplicity!.from" 
+                (change)="onUpdateRelation()"
+                class="form-control">
+          <option value="">-- Seleccionar multiplicidad --</option>
+          <option *ngFor="let preset of multiplicityPresets" [value]="preset">{{ preset }}</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label>Multiplicidad destino:</label>
+      <div class="multiplicity-input-group">
+        <select [(ngModel)]="selectedRelation.multiplicity!.to" 
+                (change)="onUpdateRelation()"
+                class="form-control">
+          <option value="">-- Seleccionar multiplicidad --</option>
+          <option *ngFor="let preset of multiplicityPresets" [value]="preset">{{ preset }}</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label>Clase de Asociación:</label>
+      <div class="association-class-controls">
+        <button *ngIf="!hasAssociationClass()" 
+                (click)="onCreateAssociationClass()" 
+                class="btn btn-secondary btn-sm">
+          <span class="icon">📦</span> Crear Clase de Asociación
+        </button>
+        <button *ngIf="hasAssociationClass()" 
+                (click)="onRemoveAssociationClass()" 
+                class="btn btn-danger btn-sm">
+          <span class="icon">🗑️</span> Eliminar Clase de Asociación
+        </button>
+      </div>
+      <small class="help-text" *ngIf="!hasAssociationClass()">
+        Una clase de asociación permite modelar atributos y métodos de la relación.
+      </small>
+    </div>
+    
+    <div class="form-actions">
+      <button (click)="onDeleteRelation()" class="btn btn-danger">
+        <span class="icon">🗑️</span> Eliminar Relación
+      </button>
+    </div>
+  </div>
+</div>

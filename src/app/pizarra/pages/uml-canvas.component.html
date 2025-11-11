@@ -1,0 +1,312 @@
+<div class="canvas-container" [class.sidebar-expanded]="isSidebarExpanded">
+  <app-sidebar 
+    (itemSelected)="onSidebarItemSelected($event)"
+    [classes]="classes"
+    [selectedClass]="getSelectedClassForPanel()"
+    (addAttribute)="onClassAddAttribute($event)"
+    (updateAttribute)="onClassUpdateAttribute($event)"
+    (deleteAttribute)="onClassDeleteAttribute($event)"
+    (addMethod)="onClassAddMethod($event)"
+    (updateMethod)="onClassUpdateMethod($event)"
+    (deleteMethod)="onClassDeleteMethod($event)"
+    (updateClassName)="onClassUpdateClassName($event)"
+    (selectClass)="onClassSelect($event)"
+    (addDiagramClass)="addNewClass()"  
+    (diagramGenerated)="onDiagramGenerated($event)"
+    >
+
+  </app-sidebar>
+  <div class="uml-main-area">
+    <div class="toolbar">
+      
+      <button (click)="addNewClass()" class="btn btn-primary">
+        <span class="icon">📦</span> Nueva Clase
+      </button>
+      <button (click)="toggleRelationMode()" [class.active]="relationMode" class="btn btn-secondary">
+        <span class="icon">🔗</span> Crear Relación
+      </button>
+      <div class="relation-type-selector" *ngIf="relationMode">
+        <select [(ngModel)]="selectedRelationType" class="form-select">
+          <option value="association">Asociación (→)</option>
+          <option value="aggregation">Agregación (◇→)</option>
+          <option value="composition">Composición (♦→)</option>
+          <option value="inheritance">Herencia (△)</option>
+          <option value="realization">Realización (- - △)</option>
+          <option value="dependency">Dependencia (- - →)</option>
+        </select>
+        <div class="relation-info">
+          <small>{{ getRelationDescription(selectedRelationType) }}</small>
+        </div>
+      </div>
+      <!-- Separador -->
+      <div class="toolbar-separator"></div>
+
+      <button (click)="toggleTheme()" class="btn btn-secondary theme-toggle">
+        <span class="icon">{{ themeService.isDarkTheme() ? '☀️' : '🌙' }}</span>
+        {{ themeService.isDarkTheme() ? 'Claro' : 'Oscuro' }}
+      </button>
+<!-- 
+      <button (click)="toggleLegend()" class="btn btn-secondary">
+        <span class="icon">𝓁</span> Leyenda
+      </button> -->
+
+      <button 
+        (click)="openImproveAgent()" 
+        [disabled]="classes.length === 0" 
+        class="btn btn-success"
+        [title]="classes.length === 0 ? 'Crea un diagrama primero' : 'Mejorar diagrama con IA'">
+        <span class="icon">🤖</span> Mejorar IA
+      </button>
+
+      <button (click)="clearCanvas()" class="btn btn-danger">
+        <span class="icon">🗑️</span> Limpiar
+      </button>
+      <button (click)="exportDiagram()" class="btn btn-info">
+        <span class="icon">�</span> Exportar 
+      </button>
+
+       <button 
+       (click)="deleteSelectedClass()" 
+       [disabled]="!selectedClass" 
+       class="btn btn-danger"
+       [title]="selectedClass ? 'Eliminar clase seleccionada' : 'Selecciona una clase primero'">
+       <span class="icon">🗑️</span> Eliminar Clase
+     </button>
+      <button (click)="exportDiagramSpringBoot()" class="btn btn-info">
+        <span class="icon"> 
+        🚀
+        </span> Exportar Spring Boot 
+      </button>
+       <div class="connected-users" *ngIf="isSocketConnected && connectedUsers.length > 0">
+      <div class="users-label">👥 Colaboradores:</div>
+      <div class="user-list">
+        <div *ngFor="let user of connectedUsers" 
+             class="user-indicator"
+             [style.background-color]="user.color"
+             [title]="user.name">
+          {{ user.name.charAt(0) }}
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- Leyenda de relaciones UML -->
+    <!-- <div class="legend-panel" *ngIf="showLegend">
+      <div class="legend-header">
+        <h4>Relaciones UML</h4>
+        <button (click)="toggleLegend()" class="close-btn">×</button>
+      </div>
+      <div class="legend-content">
+        <div class="legend-item">
+          <svg width="80" height="20">
+            <line x1="10" y1="10" x2="60" y2="10" stroke="#333" stroke-width="2" />
+          </svg>
+          <span>Asociación</span>
+        </div>
+
+        <div class="legend-item">
+          <svg width="80" height="20">
+            <line x1="10" y1="10" x2="60" y2="10" stroke="#4CAF50" stroke-width="2"
+              marker-end="url(#aggregation-diamond)" />
+          </svg>
+          <span>Agregación</span>
+        </div>
+
+        <div class="legend-item">
+          <svg width="80" height="20">
+            <line x1="10" y1="10" x2="60" y2="10" stroke="#F44336" stroke-width="2"
+              marker-end="url(#composition-diamond)" />
+          </svg>
+          <span>Composición</span>
+        </div>
+
+        <div class="legend-item">
+          <svg width="80" height="20">
+            <line x1="10" y1="10" x2="60" y2="10" stroke="#2196F3" stroke-width="2"
+              marker-end="url(#inheritance-arrow)" />
+          </svg>
+          <span>Herencia</span>
+        </div>
+
+        <div class="legend-item">
+          <svg width="80" height="20">
+            <line x1="10" y1="10" x2="60" y2="10" stroke="#FF9800" stroke-width="2" stroke-dasharray="8,4"
+              marker-end="url(#realization-arrow)" />
+          </svg>
+          <span>Realización</span>
+        </div>
+
+        <div class="legend-item">
+          <svg width="80" height="20">
+            <line x1="10" y1="10" x2="60" y2="10" stroke="#9C27B0" stroke-width="2" stroke-dasharray="4,4"
+              marker-end="url(#dependency-arrow)" />
+          </svg>
+          <span>Dependencia</span>
+        </div>
+      </div>
+    </div> -->
+
+    <div class="canvas-area" (mousedown)="onCanvasMouseDown($event)" (mousemove)="onCanvasMouseMove($event)"
+      (mouseup)="onCanvasMouseUp($event)" (dblclick)="onCanvasDoubleClick($event)">
+
+      <svg [attr.width]="svgWidth" [attr.height]="svgHeight" class="svg-canvas">
+        <!-- Marcadores UML para diferentes tipos de relaciones -->
+        <defs>
+          <!-- Flecha simple para Asociación -->
+          <marker id="association-arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="none" stroke="#333" stroke-width="1" />
+          </marker>
+
+          <!-- Flecha triangular vacía para Herencia -->
+          <marker id="inheritance-arrow" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto">
+            <polygon points="0 0, 12 5, 0 10" fill="white" stroke="#2196F3" stroke-width="2" />
+          </marker>
+
+          <!-- Flecha triangular vacía con línea punteada para Realización -->
+          <marker id="realization-arrow" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto">
+            <polygon points="0 0, 12 5, 0 10" fill="white" stroke="#FF9800" stroke-width="2" />
+          </marker>
+
+          <!-- Diamante vacío para Agregación -->
+          <marker id="aggregation-diamond" markerWidth="14" markerHeight="10" refX="13" refY="5" orient="auto">
+            <polygon points="0 5, 7 0, 14 5, 7 10" fill="white" stroke="#4CAF50" stroke-width="2" />
+          </marker>
+
+          <!-- Diamante relleno para Composición -->
+          <marker id="composition-diamond" markerWidth="14" markerHeight="10" refX="13" refY="5" orient="auto">
+            <polygon points="0 5, 7 0, 14 5, 7 10" fill="#F44336" stroke="#F44336" stroke-width="2" />
+          </marker>
+
+          <!-- Flecha simple para Dependencia -->
+          <marker id="dependency-arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="none" stroke="#9C27B0" stroke-width="1" />
+          </marker>
+        </defs>
+
+        <!-- Relaciones - renderizadas primero para que estén detrás -->
+        <g class="relations-layer">
+          <!-- Relaciones normales y auto-relaciones -->
+          <ng-container *ngFor="let relation of relations">
+            <!-- Relaciones normales (no auto-relaciones) -->
+            <line *ngIf="!isSelfRelation(relation)" [attr.x1]="getRelationStartX(relation)"
+              [attr.y1]="getRelationStartY(relation)" [attr.x2]="getRelationEndX(relation)"
+              [attr.y2]="getRelationEndY(relation)" [attr.stroke]="getRelationColor(relation.type)"
+              [attr.stroke-width]="2" [attr.stroke-dasharray]="getRelationDashArray(relation.type)"
+              [attr.marker-end]="getRelationMarker(relation.type)" [class]="'relation-line relation-' + relation.type"
+              [class.selected]="selectedRelation === relation.id" (click)="selectRelation(relation.id)"
+              [attr.data-relation-type]="relation.type">
+            </line>
+
+            <!-- Auto-relaciones (bucles) -->
+            <path *ngIf="isSelfRelation(relation)" [attr.d]="getSelfRelationPath(relation)"
+              [attr.stroke]="getRelationColor(relation.type)" [attr.stroke-width]="2"
+              [attr.stroke-dasharray]="getRelationDashArray(relation.type)"
+              [attr.marker-end]="getRelationMarker(relation.type)" fill="none"
+              [class]="'relation-line relation-' + relation.type + ' self-relation'"
+              [class.selected]="selectedRelation === relation.id" (click)="selectRelation(relation.id)"
+              [attr.data-relation-type]="relation.type">
+            </path>
+          </ng-container>
+
+          <!-- Multiplicidad en el origen -->
+          <text *ngFor="let relation of relations" [attr.x]="getMultiplicityFromX(relation)"
+            [attr.y]="getMultiplicityFromY(relation)" class="multiplicity-text"
+            [class.selected]="selectedRelation === relation.id" (click)="selectRelation(relation.id)">
+            {{ relation.multiplicity?.from || '' }}
+          </text>
+
+          <!-- Multiplicidad en el destino -->
+          <text *ngFor="let relation of relations" [attr.x]="getMultiplicityToX(relation)"
+            [attr.y]="getMultiplicityToY(relation)" class="multiplicity-text"
+            [class.selected]="selectedRelation === relation.id" (click)="selectRelation(relation.id)">
+            {{ relation.multiplicity?.to || '' }}
+          </text>
+
+          <!-- Etiqueta en el medio de la relación -->
+          <text *ngFor="let relation of relations" [attr.x]="getRelationLabelX(relation)"
+            [attr.y]="getRelationLabelY(relation)" class="relation-label"
+            [class.selected]="selectedRelation === relation.id" (click)="selectRelation(relation.id)">
+            {{ relation.label || '' }}
+          </text>
+
+          <!-- Líneas de conexión para clases de asociación -->
+          <ng-container *ngFor="let relation of relations">
+            <line *ngIf="hasAssociationClass(relation)" [attr.x1]="getAssociationClassConnectionStart(relation)?.x"
+              [attr.y1]="getAssociationClassConnectionStart(relation)?.y"
+              [attr.x2]="getAssociationClassConnectionEnd(relation)?.x"
+              [attr.y2]="getAssociationClassConnectionEnd(relation)?.y" stroke="#666" stroke-width="1.5"
+              stroke-dasharray="5,3" class="association-class-line">
+            </line>
+          </ng-container>
+        </g>
+      </svg>
+
+      <!-- Clases UML -->
+      <div *ngFor="let umlClass of classes" class="uml-class" [style.left.px]="umlClass.position.x"
+        [style.top.px]="umlClass.position.y" [class.selected]="selectedClass === umlClass.id"
+        (mousedown)="onClassMouseDown($event, umlClass.id)" (click)="onClassClick(umlClass.id)"
+        >
+
+        <div class="class-header">
+          <span class="class-name">{{ umlClass.name }}</span>
+          <!-- <input [(ngModel)]="umlClass.name" class="class-name-input"
+            (blur)="updateClassName(umlClass.id, umlClass.name)"
+            (keyup.enter)="updateClassName(umlClass.id, umlClass.name)"> -->
+        </div>
+
+        <div class="class-section attributes">
+          <div *ngFor="let attr of umlClass.attributes; trackBy: trackByAttributeId" class="attribute-item">
+            <span class="visibility">{{ getVisibilitySymbol(attr.visibility) }}</span>
+            <span class="attr-name">{{ attr.name }}</span>
+            <span>:</span>
+            <span class="attr-type">{{ attr.type }}</span>
+         <!--    
+             <input [(ngModel)]="attr.name" class="attr-name" (blur)="updateAttribute(umlClass.id, attr.id)"
+              placeholder="nombre">
+            <span>:</span>
+            <input [(ngModel)]="attr.type" class="attr-type" (blur)="updateAttribute(umlClass.id, attr.id)"
+              placeholder="tipo">
+            <button (click)="deleteAttribute(umlClass.id, attr.id)" class="delete-btn">×</button>  -->
+          </div>
+       <!--    <button (click)="addAttribute(umlClass.id)" class="add-btn">+ Atributo</button> -->
+        </div>
+
+        <div class="class-section methods">
+          <div *ngFor="let method of umlClass.methods; trackBy: trackByMethodId" class="method-item">
+            <span class="visibility">{{ getVisibilitySymbol(method.visibility) }}</span>
+            <span class="method-name">{{ method.name }}</span>
+            <span>()</span>
+            <span>:</span>
+            <span class="method-return">{{ method.returnType }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel de propiedades de relación -->
+    <app-relation-property-panel [selectedRelation]="getSelectedRelation()" (closePanel)="onRelationPanelClose()"
+      (updateRelation)="onRelationUpdate($event)" (deleteRelation)="onRelationDelete($event)"
+      (createAssociationClass)="createAssociationClassForRelation($event)"
+      (removeAssociationClass)="removeAssociationClassFromRelation($event)">
+    </app-relation-property-panel>
+
+    <!-- Modal del Agente Mejorador -->
+    <app-improve-agent-modal 
+      [isOpen]="showImproveAgent"
+      [currentDiagram]="diagramService.getDiagram()"
+      (close)="showImproveAgent = false"
+      (diagramImproved)="onDiagramImproved($event)"
+    ></app-improve-agent-modal>
+
+    <!-- Visor de código para ZIPs generados -->
+    <app-code-viewer *ngIf="showCodeViewer" [zipBlob]="lastZipBlob" (close)="showCodeViewer = false"></app-code-viewer>
+
+    <!-- Indicador de usuarios conectados -->
+   
+
+    <div class="status-bar" *ngIf="statusMessage">
+      {{ statusMessage }}
+    </div>
+  </div>
+
+</div>

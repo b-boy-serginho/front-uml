@@ -1,0 +1,62 @@
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo">⚡ DiagramCode</div>
+            <div class="login-subtitle">Generador de Proyectos</div>
+        </div>
+
+        <div class="login-form">
+            <h2 class="form-title">Bienvenido de nuevo</h2>
+            <p class="form-description">Ingresa tus credenciales para continuar</p>
+
+            <div class="error-message" id="errorMessage">
+                Credenciales incorrectas. Por favor, intenta nuevamente.
+            </div>
+
+            <form id="loginForm" [formGroup]="myForm" (ngSubmit)="login()">
+                <div class="form-group">
+                    <label class="form-label" for="email">Correo electrónico</label>
+                    <input type="email" id="email" class="form-input" formControlName="email" required placeholder="ejemplo@gmail.com">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Contraseña</label>
+                    <div class="password-container">
+                        <input type="password" id="password" class="form-input" placeholder="••••••••"
+                            formControlName="password" required>
+                        <!--  <span class="toggle-password" (click)="togglePassword()">
+
+                            {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+                        </span> -->
+                    </div>
+                </div>
+                <div style="color: red;margin-bottom: 25px;">
+                    <span>
+                        {{ errorMessage }}
+                    </span>
+                </div>
+                <div class="form-options">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="remember">
+                        <span>Recordarme</span>
+                    </label>
+                    <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+                </div>
+
+                <button type="submit" class="btn-login">Iniciar Sesión</button>
+            </form>
+
+            <div class="divider">
+                <span>O continúa con</span>
+            </div>
+
+
+
+            <div class="register-link">
+                ¿No tienes una cuenta? <a  routerLink="/register">Regístrate aquí</a>
+            </div>
+        </div>
+    </div>
+
+
+</body>

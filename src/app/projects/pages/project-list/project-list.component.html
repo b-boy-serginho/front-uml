@@ -1,0 +1,50 @@
+<div class="project-list-container">
+  <div class="header">
+    <h1>📁 Mis Proyectos</h1>
+    
+    <button (click)="createNewProject()" class="btn btn-primary">
+      <span class="icon">➕</span> Nuevo Proyecto
+    </button>
+  </div>
+
+  <div class="projects-grid" *ngIf="projects.length > 0">
+    <div *ngFor="let project of projects" class="project-card">
+      <div class="project-header">
+        <h3>{{ project.name }}</h3>
+      <!--   <span class="project-user">👤 {{ project.userid }}</span> -->
+      </div>
+      
+      <p class="project-description">{{ project.description }}</p>
+      
+      <div class="project-dates">
+        <small>
+          <strong>Creado:</strong> {{project.created }}
+        </small>
+        <small>
+          <strong>Modificado:</strong> {{ project.updated }}
+        </small>
+      </div>
+      
+      <div class="project-actions">
+        <button (click)="viewDiagrams(project.id)" class="btn btn-primary">
+          📊 Ver Diagramas
+        </button>
+        <button (click)="editProject(project.id)" class="btn btn-secondary">
+          ✏️ Editar
+        </button>
+        <button (click)="deleteProject(project)" class="btn btn-danger">
+          🗑️ Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="projects.length === 0" class="empty-state">
+    <div class="empty-icon">📂</div>
+    <h2>No hay proyectos</h2>
+    <p>Crea tu primer proyecto para comenzar</p>
+    <button (click)="createNewProject()" class="btn btn-primary btn-large">
+      ➕ Crear Primer Proyecto
+    </button>
+  </div>
+</div>

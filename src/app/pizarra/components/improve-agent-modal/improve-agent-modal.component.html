@@ -1,0 +1,87 @@
+<div class="modal-overlay" [class.open]="isOpen" (click)="onClose()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2>🤖 Agente Mejorador de Diagramas</h2>
+      <button 
+        class="close-btn" 
+        (click)="onClose()"
+        [disabled]="isProcessing"
+      >
+        ✕
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <!-- Sección de entrada -->
+      <div class="input-section" *ngIf="!isProcessing">
+        <label for="context">
+          <strong>📝 Contexto o Mejoras Deseadas:</strong>
+          <small>(Describe qué cambios o mejoras quieres hacer al diagrama)</small>
+        </label>
+        <textarea
+          id="context"
+          [(ngModel)]="contextPrompt"
+          placeholder="Ej: Agregar validación de datos, mejorar las relaciones entre entidades, agregar más atributos de seguridad..."
+          rows="5"
+        ></textarea>
+
+        <div class="info-box">
+          <strong>ℹ️ El agente hará:</strong>
+          <ul>
+            <li>✓ Analizar el diagrama actual</li>
+            <li>✓ Generar mejoras basadas en tu contexto</li>
+            <li>✓ Validar coherencia</li>
+            <li>✓ Aplicar cambios finales</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Sección de progreso -->
+      <div class="progress-section" *ngIf="isProcessing && improvementProgress">
+        <div class="progress-bar-container">
+          <div 
+            class="progress-bar-fill" 
+            [style.width.%]="improvementProgress.progress"
+          ></div>
+        </div>
+        <p class="progress-text">{{ improvementProgress.progress }}% completado</p>
+
+        <div class="steps-container">
+          <div 
+            *ngFor="let step of improvementProgress.steps" 
+            class="step"
+            [class]="'step-' + step.status"
+          >
+            <span class="step-icon">{{ getStepIcon(step.status) }}</span>
+            <div class="step-content">
+              <h4>{{ step.title }}</h4>
+              <p class="step-description">{{ step.description }}</p>
+              <p class="step-result" *ngIf="step.result">{{ step.result }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button 
+        class="btn btn-secondary" 
+        (click)="onClose()"
+        [disabled]="isProcessing"
+      >
+        Cancelar
+      </button>
+      <button 
+        class="btn btn-primary" 
+        (click)="onImprove()"
+        [disabled]="isProcessing || !contextPrompt.trim()"
+      >
+        <span *ngIf="!isProcessing">🚀 Mejorar Diagrama</span>
+        <span *ngIf="isProcessing">⏳ Procesando...</span>
+      </button>
+    </div>
+  </div>
+</div>
