@@ -149,6 +149,27 @@
     <div class="canvas-area" (mousedown)="onCanvasMouseDown($event)" (mousemove)="onCanvasMouseMove($event)"
       (mouseup)="onCanvasMouseUp($event)" (dblclick)="onCanvasDoubleClick($event)">
 
+      <!-- Mensaje de bienvenida cuando no hay clases -->
+      <div *ngIf="classes.length === 0" class="empty-canvas-message">
+        <div class="welcome-icon">🎨</div>
+        <h2>¡Bienvenido a tu Pizarra UML!</h2>
+        <p>Comienza a crear tu diagrama de clases:</p>
+        <div class="welcome-instructions">
+          <div class="instruction-item">
+            <span class="instruction-icon">👆</span>
+            <span>Haz <strong>doble clic</strong> en el área gris para crear una clase</span>
+          </div>
+          <div class="instruction-item">
+            <span class="instruction-icon">📦</span>
+            <span>O usa el botón <strong>"Nueva Clase"</strong> arriba</span>
+          </div>
+          <div class="instruction-item">
+            <span class="instruction-icon">🔗</span>
+            <span>Luego puedes <strong>crear relaciones</strong> entre clases</span>
+          </div>
+        </div>
+      </div>
+
       <svg [attr.width]="svgWidth" [attr.height]="svgHeight" class="svg-canvas">
         <!-- Marcadores UML para diferentes tipos de relaciones -->
         <defs>

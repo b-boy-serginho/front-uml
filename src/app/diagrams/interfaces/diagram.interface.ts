@@ -1,10 +1,9 @@
 export interface Diagram {
   id: string;
-  proyecto_id: string;
+  proyectoid: string;
   name: string;
   description: string;
-  tipo: 'clases'; // Por ahora solo clases
+  tipo: 'class' | 'activity' | 'use_case' | 'sequence';
   fecha_creacion: Date;
   fecha_modificacion: Date;
-  activo: boolean;
 }

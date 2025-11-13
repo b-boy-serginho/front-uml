@@ -22,7 +22,7 @@ export class ProjectFormComponent{
     private formbuilder = inject(FormBuilder);
 
    public myForm: FormGroup = this.formbuilder.group({
-    name: ['', [Validators.required]],
+    name: ['', [Validators.required, Validators.minLength(7)]],
     description: ['', [Validators.required]],
     visibility: ['', [Validators.required]],
   })
@@ -64,12 +64,22 @@ export class ProjectFormComponent{
 
   save(){
     if (this.myForm.invalid) {
+      this.myForm.markAllAsTouched();
       return;
     }
+
+    const userId = localStorage.getItem('user_id');
+    if (!userId) {
+      console.error('No se encontró el ID del usuario');
+      alert('Error: No se encontró el ID del usuario. Por favor, inicia sesión nuevamente.');
+      return;
+    }
+
     const projectData: Partial<Project> = {
       name: this.myForm.value.name,
       description: this.myForm.value.description,
       visibility: this.myForm.value.visibility,
+      userId: userId
     };
     
     if (this.isEditMode && this.projectId) {
@@ -79,8 +89,14 @@ export class ProjectFormComponent{
       // });
     } else {
       console.log('Saving new project:', projectData);
-       this.projectService.saveProject(projectData).subscribe(() => {
-         this.router.navigate(['/projects']);
+       this.projectService.saveProject(projectData).subscribe({
+         next: () => {
+           this.router.navigate(['/projects']);
+         },
+         error: (err) => {
+           console.error('Error al guardar el proyecto:', err);
+           alert('Error al guardar el proyecto. Por favor, verifica los datos.');
+         }
        });
     }
   }

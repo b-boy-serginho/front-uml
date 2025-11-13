@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { ProjectListComponent } from './projects/pages/project-list/project-list.component';
 import { ProjectFormComponent } from './projects/components/project-form/project-form.component';
 import { DiagramListComponent } from './diagrams/pages/diagram-list/diagram-list.component';
+import { DiagramFormComponent } from './diagrams/components/diagram-form/diagram-form.component';
 
 import { UMLCanvasComponent } from './pizarra/pages/uml-canvas.component';
 import { HomePageComponent } from './share/pages/home-page/home-page.component';
@@ -20,6 +21,8 @@ export const routes: Routes = [
   { path: 'projects/new', component: ProjectFormComponent },
   { path: 'projects/edit/:id', component: ProjectFormComponent },
   { path: 'projects/:id/diagrams', component: DiagramListComponent },
+  { path: 'projects/:id/diagrams/new', component: DiagramFormComponent },
+  { path: 'projects/:id/diagrams/edit/:diagramId', component: DiagramFormComponent },
  
   {
     path: 'diagrama/canvas/:id',

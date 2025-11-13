@@ -10,7 +10,6 @@ import { IUMLCanvasComponent } from '../interfaces/IUMLCanvasComponent';
 import { Subscription } from 'rxjs';
 import { RelationPropertyPanelComponent } from '../components/modal_relaciones/relation-property-panel.component';
 import { SidebarComponent } from '../components/sidebar/sidebar.component';
-import { ClaseComponent } from '../components/clase/clase.component';
 import { ImproveAgentModalComponent } from '../components/improve-agent-modal/improve-agent-modal.component';
 import { RelationStyleService } from '../services/relation-style.service';
 import { SocketService, SocketUser } from '../services/socket.service';
@@ -27,7 +26,6 @@ import { ZipViewerService } from '../services/zip-viewer.service';
     FormsModule,
     RelationPropertyPanelComponent,
     SidebarComponent,
-    ClaseComponent,
     ImproveAgentModalComponent,
     CodeViewerComponent
   ],
@@ -76,9 +74,14 @@ export class UMLCanvasComponent implements OnInit, OnDestroy, IUMLCanvasComponen
   private route = inject(ActivatedRoute);
 
   ngOnInit(): void {
+    console.log('🎨 Iniciando UML Canvas Component');
+    // Limpiar el diagrama primero para empezar con un canvas limpio
+    this.diagramService.clearDiagram();
+    
     this.subscription = this.diagramService.diagram$.subscribe(diagram => {
       this.classes = diagram.classes;
       this.relations = diagram.relations;
+      console.log('📊 Diagrama actualizado:', { classes: this.classes.length, relations: this.relations.length });
       this.updateSVGDimensions();
     });
 
