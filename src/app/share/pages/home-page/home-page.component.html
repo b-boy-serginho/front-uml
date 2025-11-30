@@ -1,48 +1,140 @@
-
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="logo">⚡ DiagramCode</div>
-            <div class="tagline">Del Diagrama al Código en Segundos</div>
-        </div>
-
-        <div class="content">
-            <h1 class="main-title">Transforma tus Diagramas UML en Proyectos Completos</h1>
-            <p class="description">
+<div class="home-container">
+    <div class="hero-section">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span>✨ Plataforma de Diagramación UML</span>
+            </div>
+            <h1 class="hero-title">
+                Transforma tus <span class="gradient-text">Diagramas UML</span> en Proyectos Completos
+            </h1>
+            <p class="hero-description">
                 Diseña diagramas de clases visualmente y genera automáticamente proyectos Spring Boot y Flutter 
                 listos para usar. Acelera tu desarrollo y enfócate en lo que realmente importa.
             </p>
-
-            <div class="features">
-                <div class="feature">
-                    <div class="feature-icon">📊</div>
-                    <div class="feature-title">Editor Visual</div>
-                    <div class="feature-desc">Crea diagramas de clases intuitivamente con nuestro editor drag & drop</div>
-                </div>
-
-                <div class="feature">
-                    <div class="feature-icon">☕</div>
-                    <div class="feature-title">Spring Boot</div>
-                    <div class="feature-desc">Genera proyectos backend completos con JPA, REST APIs y arquitectura limpia</div>
-                </div>
-
-                <div class="feature">
-                    <div class="feature-icon">📱</div>
-                    <div class="feature-title">Flutter</div>
-                    <div class="feature-desc">Crea aplicaciones móviles multiplataforma con modelos y servicios listos</div>
-                </div>
-            </div>
-
-            <div class="auth-buttons">
-                <button class="btn btn-primary" routerLink="/login">Iniciar Sesión</button>
-                <button class="btn btn-secondary" routerLink="/register">Registrarse</button>
+            
+            <div class="hero-buttons">
+                <a routerLink="/login" class="btn btn-primary">
+                    <span>🚀</span> Iniciar Sesión
+                </a>
+                <a routerLink="/register" class="btn btn-secondary">
+                    <span>✨</span> Crear Cuenta
+                </a>
             </div>
         </div>
-
-        <div class="footer">
-            © 2025 DiagramCode. Todos los derechos reservados.
+        
+        <div class="hero-visual">
+            <div class="floating-card card-1">
+                <div class="card-icon">📊</div>
+                <div class="card-text">Diagramas</div>
+            </div>
+            <div class="floating-card card-2">
+                <div class="card-icon">⚡</div>
+                <div class="card-text">Generación</div>
+            </div>
+            <div class="floating-card card-3">
+                <div class="card-icon">🚀</div>
+                <div class="card-text">Proyectos</div>
+            </div>
         </div>
     </div>
 
-   
-</body>
+    <div class="features-section">
+        <div class="section-header">
+            <h2 class="section-title">Características Principales</h2>
+            <p class="section-subtitle">Todo lo que necesitas para crear proyectos profesionales</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <div class="feature-icon">📊</div>
+                </div>
+                <h3 class="feature-title">Editor Visual Intuitivo</h3>
+                <p class="feature-desc">
+                    Crea diagramas de clases intuitivamente con nuestro editor drag & drop. 
+                    Diseña relaciones, atributos y métodos de forma visual y sencilla.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <div class="feature-icon">☕</div>
+                </div>
+                <h3 class="feature-title">Spring Boot</h3>
+                <p class="feature-desc">
+                    Genera proyectos backend completos con JPA, REST APIs y arquitectura limpia. 
+                    Todo listo para producción desde el primer momento.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <div class="feature-icon">📱</div>
+                </div>
+                <h3 class="feature-title">Flutter Multiplataforma</h3>
+                <p class="feature-desc">
+                    Crea aplicaciones móviles multiplataforma con modelos y servicios listos. 
+                    Compatible con iOS, Android y Web.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <div class="feature-icon">🔄</div>
+                </div>
+                <h3 class="feature-title">Sincronización en Tiempo Real</h3>
+                <p class="feature-desc">
+                    Colabora con tu equipo en tiempo real. Los cambios se sincronizan instantáneamente 
+                    entre todos los participantes.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <div class="feature-icon">💾</div>
+                </div>
+                <h3 class="feature-title">Gestión de Proyectos</h3>
+                <p class="feature-desc">
+                    Organiza tus diagramas en proyectos. Mantén todo organizado y accede fácilmente 
+                    a tus trabajos anteriores.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <div class="feature-icon">⚡</div>
+                </div>
+                <h3 class="feature-title">Generación Instantánea</h3>
+                <p class="feature-desc">
+                    Convierte tus diagramas en código funcional en segundos. Sin configuración adicional, 
+                    sin complicaciones.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="cta-section">
+        <div class="cta-content">
+            <h2 class="cta-title">¿Listo para comenzar?</h2>
+            <p class="cta-description">
+                Únete a nuestra plataforma y comienza a crear proyectos profesionales hoy mismo
+            </p>
+            <div class="cta-buttons">
+                <a routerLink="/register" class="btn btn-cta-primary">Crear Cuenta Gratis</a>
+                <a routerLink="/login" class="btn btn-cta-secondary">Ya tengo cuenta</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="home-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="footer-logo">⚡ DiagramCode</span>
+                <p class="footer-tagline">Del Diagrama al Código en Segundos</p>
+            </div>
+            <div class="footer-copyright">
+                © 2025 DiagramCode. Todos los derechos reservados.
+            </div>
+        </div>
+    </footer>
+</div>

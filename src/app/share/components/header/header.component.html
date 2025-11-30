@@ -1,0 +1,26 @@
+<header class="app-header">
+  <div class="header-content">
+    <div class="header-left">
+      <a routerLink="/projects" class="logo-link">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">DiagramCode</span>
+      </a>
+    </div>
+    
+    <div class="header-right" *ngIf="isAuthenticated()">
+      <div class="user-info">
+        <span class="user-name">{{ getUserName() }}</span>
+      </div>
+      <button class="logout-btn" (click)="logout()" title="Cerrar sesión">
+        <span class="logout-icon">🚪</span>
+        <span class="logout-text">Salir</span>
+      </button>
+    </div>
+    
+    <div class="header-right" *ngIf="!isAuthenticated()">
+      <a routerLink="/login" class="auth-link">Iniciar Sesión</a>
+      <a routerLink="/register" class="auth-link auth-link-primary">Registrarse</a>
+    </div>
+  </div>
+</header>
+

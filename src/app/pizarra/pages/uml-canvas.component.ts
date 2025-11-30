@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { UMLDiagramService } from '../services/uml-diagram.service';
 import { ThemeService } from '../../share/services/theme.service';
 import { GeometryCalculatorService } from '../services/geometry/geometry-calculator.service';
+import { ChatService } from '../services/chat.service';
+import { v4 as uuidv4 } from 'uuid';
 import { DragManagerService } from '../services/drag-manager.service';
 import { UMLClass, UMLRelation, VISIBILITY_SYMBOLS, RelationType, UMLDiagram } from '../interfaces/uml-models';
 import { IUMLCanvasComponent } from '../interfaces/IUMLCanvasComponent';
@@ -11,6 +13,7 @@ import { Subscription } from 'rxjs';
 import { RelationPropertyPanelComponent } from '../components/modal_relaciones/relation-property-panel.component';
 import { SidebarComponent } from '../components/sidebar/sidebar.component';
 import { ImproveAgentModalComponent } from '../components/improve-agent-modal/improve-agent-modal.component';
+import { ExportImportModalComponent } from '../components/export-import-modal/export-import-modal.component';
 import { RelationStyleService } from '../services/relation-style.service';
 import { SocketService, SocketUser } from '../services/socket.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -27,6 +30,7 @@ import { ZipViewerService } from '../services/zip-viewer.service';
     RelationPropertyPanelComponent,
     SidebarComponent,
     ImproveAgentModalComponent,
+    ExportImportModalComponent,
     CodeViewerComponent
   ],
   templateUrl: './uml-canvas.component.html',
@@ -44,6 +48,7 @@ export class UMLCanvasComponent implements OnInit, OnDestroy, IUMLCanvasComponen
   selectedRelation: string | null = null;
   showLegend = false;
   showImproveAgent = false;
+  showExportImportModal = false;
   private selectedClassForRelation: string | null = null;
 
   // Dimensiones dinámicas del SVG
@@ -69,6 +74,7 @@ export class UMLCanvasComponent implements OnInit, OnDestroy, IUMLCanvasComponen
   private dragManager = inject(DragManagerService);
   public relationStyleService = inject(RelationStyleService);
   private socketService = inject(SocketService);
+  private chatService = inject(ChatService);
 
   private pizarraService = inject(PizarraService);
   private route = inject(ActivatedRoute);
@@ -83,6 +89,14 @@ export class UMLCanvasComponent implements OnInit, OnDestroy, IUMLCanvasComponen
       this.relations = diagram.relations;
       console.log('📊 Diagrama actualizado:', { classes: this.classes.length, relations: this.relations.length });
       this.updateSVGDimensions();
+      
+      // Actualizar el diagrama en el chat service para contexto de IA
+      this.chatService.setCurrentDiagram(diagram);
+    });
+
+    // Suscribirse a clases individuales generadas por IA
+    this.chatService.singleClassGenerated$.subscribe(result => {
+      this.onSingleClassGenerated(result);
     });
 
     // Inicializar sockets
@@ -695,6 +709,90 @@ export class UMLCanvasComponent implements OnInit, OnDestroy, IUMLCanvasComponen
     }
   }
 
+  // Manejar clase individual generada desde el chat
+  onSingleClassGenerated(result: { newClass: any, newRelations: any[] }): void {
+    console.log('🎨 Canvas recibió clase individual:', result);
+    console.log('📦 newClass completo:', JSON.stringify(result.newClass, null, 2));
+    console.log('🔗 newRelations:', JSON.stringify(result.newRelations, null, 2));
+
+    if (!result || !result.newClass) {
+      console.error('Clase individual inválida recibida:', result);
+      return;
+    }
+
+    const { newClass, newRelations } = result;
+    
+    console.log('✏️ Nombre de la clase a crear:', newClass.name);
+
+    // Crear la nueva clase en el diagrama
+    const createdClass = this.diagramService.addClass(
+      newClass.name || 'ClaseSinNombre'
+    );
+    
+    console.log('✅ Clase creada con ID:', createdClass.id, 'y nombre:', createdClass.name);
+    
+    // Actualizar la posición si está especificada
+    if (newClass.position) {
+      this.diagramService.updateClass(createdClass.id, {
+        position: newClass.position
+      });
+    }
+
+    // Actualizar atributos si los tiene
+    if (newClass.attributes && Array.isArray(newClass.attributes)) {
+      this.diagramService.updateClass(createdClass.id, {
+        attributes: newClass.attributes.map((attr: any) => ({
+          id: uuidv4(),
+          name: attr.name || 'attribute',
+          type: attr.type || 'String',
+          visibility: attr.visibility || 'private'
+        }))
+      });
+    }
+
+    // Crear las relaciones si existen
+    if (newRelations && Array.isArray(newRelations)) {
+      console.log('🔗 Procesando relaciones:', newRelations);
+      console.log('📋 Clases disponibles:', this.classes.map(c => c.name));
+      
+      newRelations.forEach((rel: any) => {
+        console.log('🔍 Buscando clase para relación:', rel);
+        
+        // Buscar las clases por nombre en el diagrama actual
+        const toClass = this.classes.find(c => {
+          const classNameMatch = c.name.toLowerCase() === rel.toClassName?.toLowerCase();
+          const idMatch = c.id === rel.toClassId;
+          console.log(`  Comparando ${c.name} con ${rel.toClassName}: ${classNameMatch}`);
+          return classNameMatch || idMatch;
+        });
+
+        if (toClass) {
+          console.log('✅ Clase encontrada:', toClass.name, '- Creando relación');
+          this.diagramService.addRelation({
+            fromClassId: createdClass.id,
+            toClassId: toClass.id,
+            type: rel.type || 'association',
+            label: rel.label || '',
+            multiplicity: rel.multiplicity || { from: '1', to: '*' }
+          });
+        } else {
+          console.warn('❌ Clase destino no encontrada para relación:', rel);
+          console.warn('  Clases disponibles:', this.classes.map(c => ({ id: c.id, name: c.name })));
+        }
+      });
+    } else {
+      console.log('⚠️ No se recibieron relaciones o no es un array:', newRelations);
+    }
+
+    this.statusMessage = `✅ Clase "${newClass.name}" agregada por IA`;
+    setTimeout(() => this.statusMessage = '', 3000);
+
+    // Emitir por socket si está conectado
+    if (this.isSocketConnected) {
+      this.socketService.emitClassAdded(createdClass);
+    }
+  }
+
   // Métodos para Socket.IO
   private initializeSocket(): void {
     this.route.params.subscribe(params => {
@@ -830,7 +928,7 @@ exportDiagramSpringBoot(): void {
 // ...existing code...
 
 
- deleteSelectedClass(): void {
+  deleteSelectedClass(): void {
     if (!this.selectedClass) {
       return;
     }
@@ -853,6 +951,192 @@ exportDiagramSpringBoot(): void {
   }
 
   /**
+   * Ordena y ajusta automáticamente las clases en el canvas
+   * Usa todo el espacio disponible de la pizarra
+   */
+  autoArrangeClasses(): void {
+    if (this.classes.length === 0) {
+      this.statusMessage = 'No hay clases para ordenar';
+      setTimeout(() => this.statusMessage = '', 2000);
+      return;
+    }
+
+    // Obtener dimensiones del viewport del canvas
+    const canvasElement = document.querySelector('.canvas-area') as HTMLElement;
+    if (!canvasElement) {
+      this.statusMessage = 'Error: No se pudo obtener el área del canvas';
+      setTimeout(() => this.statusMessage = '', 2000);
+      return;
+    }
+
+    const canvasRect = canvasElement.getBoundingClientRect();
+    const availableWidth = canvasRect.width - 100; // Margen de 50px a cada lado
+    const availableHeight = canvasRect.height - 100; // Margen de 50px arriba y abajo
+
+    // Configuración del layout
+    const classWidth = 220; // Ancho aproximado de una clase
+    const classHeight = 180; // Altura aproximada de una clase
+    const padding = 40; // Espacio entre clases
+    const margin = 50; // Margen desde los bordes
+
+    // Calcular número de columnas y filas basado en el espacio disponible
+    const numClasses = this.classes.length;
+    const cols = Math.max(1, Math.floor(availableWidth / (classWidth + padding)));
+    const rows = Math.max(1, Math.ceil(numClasses / cols));
+
+    // Ajustar el espaciado para usar todo el ancho disponible
+    const totalWidthNeeded = cols * classWidth + (cols - 1) * padding;
+    const totalHeightNeeded = rows * classHeight + (rows - 1) * padding;
+    
+    // Calcular el espaciado horizontal y vertical para centrar y distribuir
+    const horizontalSpacing = cols > 1 ? (availableWidth - totalWidthNeeded) / (cols - 1) : 0;
+    const verticalSpacing = rows > 1 ? (availableHeight - totalHeightNeeded) / (rows - 1) : 0;
+    
+    const cellWidth = classWidth + padding + horizontalSpacing;
+    const cellHeight = classHeight + padding + verticalSpacing;
+
+    // Centrar el layout
+    const startX = margin + (availableWidth - (cols * classWidth + (cols - 1) * (padding + horizontalSpacing))) / 2;
+    const startY = margin + (availableHeight - (rows * classHeight + (rows - 1) * (padding + verticalSpacing))) / 2;
+
+    // Crear un mapa de relaciones para optimizar el layout
+    const relationMap = new Map<string, Set<string>>();
+    this.relations.forEach(rel => {
+      if (!relationMap.has(rel.fromClassId)) {
+        relationMap.set(rel.fromClassId, new Set());
+      }
+      if (!relationMap.has(rel.toClassId)) {
+        relationMap.set(rel.toClassId, new Set());
+      }
+      relationMap.get(rel.fromClassId)!.add(rel.toClassId);
+      relationMap.get(rel.toClassId)!.add(rel.fromClassId);
+    });
+
+    // Calcular posiciones usando algoritmo mejorado
+    const positionMap = this.calculateOptimalPositions(
+      this.classes,
+      relationMap,
+      cols,
+      rows,
+      cellWidth,
+      cellHeight,
+      startX,
+      startY
+    );
+
+    // Aplicar las nuevas posiciones usando el mapa
+    positionMap.forEach((pos, classId) => {
+      this.diagramService.updateClass(classId, { position: pos });
+
+      // Emitir evento de socket si está conectado
+      if (this.isSocketConnected) {
+        const updatedClass = this.classes.find(c => c.id === classId);
+        if (updatedClass) {
+          this.socketService.emitClassUpdated(updatedClass);
+        }
+      }
+    });
+
+    // Actualizar dimensiones del SVG para que incluya todas las clases
+    this.updateSVGDimensions();
+
+    this.statusMessage = `✅ ${numClasses} clases ordenadas y ajustadas a la pantalla`;
+    setTimeout(() => this.statusMessage = '', 3000);
+  }
+
+  /**
+   * Calcula posiciones óptimas para las clases basándose en sus relaciones
+   * Intenta colocar clases relacionadas cerca unas de otras
+   * Retorna un Map con classId -> posición
+   */
+  private calculateOptimalPositions(
+    classes: UMLClass[],
+    relationMap: Map<string, Set<string>>,
+    cols: number,
+    rows: number,
+    cellWidth: number,
+    cellHeight: number,
+    startX: number,
+    startY: number
+  ): Map<string, { x: number; y: number }> {
+    const positionMap = new Map<string, { x: number; y: number }>();
+    const usedPositions = new Set<string>();
+
+    // Layout simple en cuadrícula para distribuir uniformemente
+    classes.forEach((cls, index) => {
+      const col = index % cols;
+      const row = Math.floor(index / cols);
+      positionMap.set(cls.id, {
+        x: startX + col * cellWidth,
+        y: startY + row * cellHeight
+      });
+    });
+
+    // Si hay relaciones, intentar optimizar posiciones
+    if (relationMap.size > 0 && classes.length > 4) {
+      // Intentar reorganizar clases relacionadas para que estén más cerca
+      const sortedClasses = [...classes].sort((a, b) => {
+        const aConnections = relationMap.get(a.id)?.size || 0;
+        const bConnections = relationMap.get(b.id)?.size || 0;
+        return bConnections - aConnections;
+      });
+
+      // Reorganizar posiciones para clases con más relaciones
+      const newPositions = new Map<string, { x: number; y: number }>();
+      const placed = new Set<string>();
+      let currentIndex = 0;
+
+      // Colocar primero las clases con más relaciones
+      sortedClasses.forEach(cls => {
+        if (placed.has(cls.id)) return;
+
+        const col = currentIndex % cols;
+        const row = Math.floor(currentIndex / cols);
+        newPositions.set(cls.id, {
+          x: startX + col * cellWidth,
+          y: startY + row * cellHeight
+        });
+        placed.add(cls.id);
+        currentIndex++;
+
+        // Intentar colocar clases relacionadas cerca
+        const related = relationMap.get(cls.id);
+        if (related) {
+          related.forEach(relatedId => {
+            if (!placed.has(relatedId) && currentIndex < classes.length) {
+              const relatedCol = currentIndex % cols;
+              const relatedRow = Math.floor(currentIndex / cols);
+              newPositions.set(relatedId, {
+                x: startX + relatedCol * cellWidth,
+                y: startY + relatedRow * cellHeight
+              });
+              placed.add(relatedId);
+              currentIndex++;
+            }
+          });
+        }
+      });
+
+      // Agregar clases restantes que no fueron colocadas
+      classes.forEach(cls => {
+        if (!newPositions.has(cls.id)) {
+          const col = currentIndex % cols;
+          const row = Math.floor(currentIndex / cols);
+          newPositions.set(cls.id, {
+            x: startX + col * cellWidth,
+            y: startY + row * cellHeight
+          });
+          currentIndex++;
+        }
+      });
+
+      return newPositions;
+    }
+
+    return positionMap;
+  }
+
+  /**
    * ============== MÉTODOS DEL AGENTE MEJORADOR ==============
    */
 
@@ -865,6 +1149,199 @@ exportDiagramSpringBoot(): void {
       return;
     }
     this.showImproveAgent = true;
+  }
+
+  /**
+   * Abre el modal de exportar/importar
+   */
+  openExportImportModal(): void {
+    this.showExportImportModal = true;
+  }
+
+  /**
+   * Exporta el diagrama como imagen PNG
+   */
+  async exportAsImage(): Promise<void> {
+    try {
+      // Usar html2canvas si está disponible, sino usar método alternativo
+      const canvasArea = document.querySelector('.canvas-area') as HTMLElement;
+      if (!canvasArea) {
+        alert('No se pudo encontrar el área del canvas');
+        return;
+      }
+
+      // Verificar si html2canvas está disponible
+      if (typeof (window as any).html2canvas !== 'undefined') {
+        const html2canvas = (window as any).html2canvas;
+        const canvas = await html2canvas(canvasArea, {
+          backgroundColor: this.themeService.isDarkTheme() ? '#1a1a1a' : '#ffffff',
+          scale: 2,
+          logging: false,
+          useCORS: true
+        });
+
+        canvas.toBlob((blob: Blob | null) => {
+          if (blob) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `diagrama-uml-${Date.now()}.png`;
+            a.click();
+            URL.revokeObjectURL(url);
+            this.statusMessage = 'Diagrama exportado como imagen exitosamente.';
+            setTimeout(() => this.statusMessage = '', 3000);
+          }
+        }, 'image/png');
+      } else {
+        // Método alternativo usando SVG
+        this.exportAsImageSVG();
+      }
+    } catch (error) {
+      console.error('Error al exportar imagen:', error);
+      alert('Error al exportar la imagen. Por favor intenta de nuevo.');
+    }
+  }
+
+  /**
+   * Método alternativo para exportar como imagen usando SVG
+   */
+  private exportAsImageSVG(): void {
+    const svg = document.querySelector('.svg-canvas') as SVGSVGElement;
+    if (!svg) {
+      alert('No se pudo encontrar el SVG del diagrama');
+      return;
+    }
+
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const svgUrl = URL.createObjectURL(svgBlob);
+
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = this.themeService.isDarkTheme() ? '#1a1a1a' : '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `diagrama-uml-${Date.now()}.png`;
+            a.click();
+            URL.revokeObjectURL(url);
+            this.statusMessage = 'Diagrama exportado como imagen exitosamente.';
+            setTimeout(() => this.statusMessage = '', 3000);
+          }
+        }, 'image/png');
+      }
+      URL.revokeObjectURL(svgUrl);
+    };
+    img.src = svgUrl;
+  }
+
+  /**
+   * Exporta el diagrama como PDF
+   */
+  async exportAsPDF(): Promise<void> {
+    try {
+      // Verificar si jsPDF está disponible
+      if (typeof (window as any).jspdf !== 'undefined') {
+        const { jsPDF } = (window as any).jspdf;
+        
+        // Primero exportar como imagen
+        const canvasArea = document.querySelector('.canvas-area') as HTMLElement;
+        if (!canvasArea) {
+          alert('No se pudo encontrar el área del canvas');
+          return;
+        }
+
+        let imageData: string;
+        
+        if (typeof (window as any).html2canvas !== 'undefined') {
+          const html2canvas = (window as any).html2canvas;
+          const canvas = await html2canvas(canvasArea, {
+            backgroundColor: this.themeService.isDarkTheme() ? '#1a1a1a' : '#ffffff',
+            scale: 2,
+            logging: false,
+            useCORS: true
+          });
+          imageData = canvas.toDataURL('image/png');
+        } else {
+          // Usar método SVG alternativo
+          const svg = document.querySelector('.svg-canvas') as SVGSVGElement;
+          if (!svg) {
+            alert('No se pudo encontrar el SVG del diagrama');
+            return;
+          }
+          const svgData = new XMLSerializer().serializeToString(svg);
+          const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+          imageData = URL.createObjectURL(svgBlob);
+        }
+
+        // Crear PDF
+        const pdf = new jsPDF({
+          orientation: 'landscape',
+          unit: 'mm',
+          format: 'a4'
+        });
+
+        const imgWidth = 297; // A4 width in mm
+        const imgHeight = (canvasArea.offsetHeight / canvasArea.offsetWidth) * imgWidth;
+
+        pdf.addImage(imageData, 'PNG', 0, 0, imgWidth, imgHeight);
+        pdf.save(`diagrama-uml-${Date.now()}.pdf`);
+
+        this.statusMessage = 'Diagrama exportado como PDF exitosamente.';
+        setTimeout(() => this.statusMessage = '', 3000);
+      } else {
+        // Fallback: descargar como imagen y sugerir conversión manual
+        alert('La librería jsPDF no está disponible. Exportando como imagen en su lugar.');
+        await this.exportAsImage();
+      }
+    } catch (error) {
+      console.error('Error al exportar PDF:', error);
+      alert('Error al exportar el PDF. Por favor intenta de nuevo.');
+    }
+  }
+
+  /**
+   * Importa un diagrama desde JSON
+   */
+  importFromJson(jsonContent: string): void {
+    try {
+      const diagram = JSON.parse(jsonContent);
+      
+      if (!diagram.classes || !Array.isArray(diagram.classes)) {
+        throw new Error('Formato de diagrama inválido');
+      }
+
+      // Confirmar antes de importar
+      if (this.classes.length > 0) {
+        if (!confirm('¿Estás seguro de que quieres importar este diagrama? Se reemplazará el diagrama actual.')) {
+          return;
+        }
+      }
+
+      // Limpiar el diagrama actual
+      this.diagramService.clearDiagram();
+
+      // Cargar el nuevo diagrama
+      if (diagram.classes && diagram.relations) {
+        this.diagramService.loadDiagramState(diagram.classes, diagram.relations);
+        this.statusMessage = `Diagrama importado exitosamente: ${diagram.classes.length} clases y ${diagram.relations.length} relaciones.`;
+        setTimeout(() => this.statusMessage = '', 5000);
+      } else {
+        throw new Error('El diagrama no tiene la estructura correcta');
+      }
+    } catch (error) {
+      console.error('Error al importar JSON:', error);
+      alert('Error al importar el diagrama. Por favor verifica que el archivo JSON sea válido.');
+    }
   }
 
   /**

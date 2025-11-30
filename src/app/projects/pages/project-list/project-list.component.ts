@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
 import { Project } from '../../interfaces/project.model';
+import { HeaderComponent } from '../../../share/components/header/header.component';
 
 
 @Component({
   selector: 'app-project-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, HeaderComponent],
   templateUrl: './project-list.component.html',
   styleUrls: ['./project-list.component.css']
 })

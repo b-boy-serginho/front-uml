@@ -28,27 +28,38 @@ export class AuthService {
             .pipe(
                 tap(response => {
                     console.log('Login response:', response);
-                    this.saveToken(response.token,response.id!);
-                    
+                    this.saveToken(response.token, response.id!);
                 })
             );
     }
 
 
-    saveToken(token: string, userId: string): void {
+    saveToken(token: string, userId: string, userName?: string): void {
         localStorage.setItem('auth_token', token);
         localStorage.setItem('user_id', userId);
+        if (userName) {
+            localStorage.setItem('user_name', userName);
+        }
     }
+    
     saveUserId(userId: string): void {
-
         localStorage.setItem('user_id', userId);
     }
+    
     register(user :User): Observable<ResponseRegister> {
-        return this.http.post<ResponseRegister>(`${this.url}/auth/register`, user);
+        return this.http.post<ResponseRegister>(`${this.url}/auth/register`, user)
+            .pipe(
+                tap(response => {
+                    if (response.user && response.token) {
+                        this.saveToken(response.token, response.user.id || '', response.user.userName);
+                    }
+                })
+            );
     }
 
     logout(): void {
-        delete localStorage['auth_token'];
-        
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user_id');
+        localStorage.removeItem('user_name');
     }
 }

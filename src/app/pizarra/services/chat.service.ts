@@ -19,6 +19,12 @@ export class ChatService {
   private diagramGeneratedSubject = new Subject<UMLDiagram>();
   public diagramGenerated$ = this.diagramGeneratedSubject.asObservable();
 
+  // Subject para emitir clases individuales generadas
+  private singleClassGeneratedSubject = new Subject<{ newClass: any, newRelations: any[] }>();
+  public singleClassGenerated$ = this.singleClassGeneratedSubject.asObservable();
+
+  private currentDiagram: UMLDiagram | null = null;
+
   private umlDiagramProvider = inject(GeminiDiagramProvider);
 
   constructor() {
@@ -195,25 +201,48 @@ export class ChatService {
       // Si es audio, generar diagrama desde audio
       if (messageType === 'audio' && file instanceof Blob) {
         const diagram = await this.umlDiagramProvider.generateUMLDiagramFromMediaFiles(undefined, file, userMessage);
+        
+        // Validar que el diagrama sea válido
+        if (!diagram || !diagram.classes || !Array.isArray(diagram.classes)) {
+          this.addAssistantMessage('❌ No pude generar un diagrama válido desde el audio. Intenta describir el sistema de otra manera.');
+          return;
+        }
+        
         this.diagramGeneratedSubject.next(diagram);
         this.addAssistantMessage(
-          `He transcrito tu audio y generado un diagrama UML: "${diagram.name}". Contiene ${diagram.classes.length} clases y ${diagram.relations.length} relaciones. ¡Ya está dibujado! 🎤🎨`,
+          `He transcrito tu audio y generado un diagrama UML: "${diagram.name}". Contiene ${diagram.classes.length} clases y ${diagram.relations?.length || 0} relaciones. ¡Ya está dibujado! 🎤🎨`,
           diagram
         );
         return diagram;
       }
 
-      // Si es texto, verificar si quiere un diagrama
-      const diagramKeywords = ['diagrama', 'crea', 'genera', 'diseña', 'modela', 'sistema'];
+      // Detectar si quiere agregar una clase individual
+      const addClassPattern = /(?:agrega|añade|crea|genera)\s+(?:una\s+)?clase\s+(\w+)(?:\s+relacionad[ao]\s+con\s+)?(.+)?/i;
+      const addClassMatch = userMessage.match(addClassPattern);
+      
+      if (addClassMatch) {
+        await this.handleSingleClassGeneration(userMessage, addClassMatch);
+        return;
+      }
+
+      // Si es texto, verificar si quiere un diagrama completo
+      const diagramKeywords = ['diagrama', 'diseña', 'modela', 'sistema'];
       const wantsDiagram = diagramKeywords.some(keyword =>
         userMessage.toLowerCase().includes(keyword)
       );
 
       if (wantsDiagram) {
         const diagram = await this.umlDiagramProvider.generateUMLDiagram(userMessage, this.getUMLDiagramSchema());
+        
+        // Validar que el diagrama sea válido
+        if (!diagram || !diagram.classes || !Array.isArray(diagram.classes)) {
+          this.addAssistantMessage('❌ No pude generar un diagrama válido. Por favor, intenta reformular tu solicitud con más detalles.');
+          return;
+        }
+        
         this.diagramGeneratedSubject.next(diagram);
         this.addAssistantMessage(
-          `He generado un diagrama UML para: "${diagram.name}". Contiene ${diagram.classes.length} clases y ${diagram.relations.length} relaciones. ¡Ya está dibujado en el canvas! 🎨`,
+          `He generado un diagrama UML para: "${diagram.name}". Contiene ${diagram.classes.length} clases y ${diagram.relations?.length || 0} relaciones. ¡Ya está dibujado en el canvas! 🎨`,
           diagram
         );
         return diagram;
@@ -226,5 +255,66 @@ export class ChatService {
       console.error('Error al procesar mensaje:', error);
       this.addAssistantMessage('Lo siento, hubo un error al procesar tu mensaje. Por favor, intenta de nuevo.');
     }
+  }
+
+  /**
+   * Maneja la generación de una clase individual mediante IA
+   */
+  private async handleSingleClassGeneration(userMessage: string, match: RegExpMatchArray): Promise<void> {
+    const className = match[1];
+    const relatedClassesText = match[2] || '';
+    
+    // Extraer nombres de clases relacionadas del mensaje
+    const relatedClasses = this.extractClassNames(relatedClassesText);
+    
+    if (relatedClasses.length === 0) {
+      this.addAssistantMessage(
+        `Para generar la clase "${className}", necesito saber con qué clases existentes quieres relacionarla. ` +
+        `Por ejemplo: "Agrega una clase Pedido relacionada con Cliente"`
+      );
+      return;
+    }
+    
+    this.addAssistantMessage(`🔄 Generando clase "${className}" relacionada con: ${relatedClasses.join(', ')}...`);
+    
+    try {
+      // Usar el diagrama actual si está disponible
+      const diagram = this.currentDiagram || {
+        id: 'temp',
+        name: 'Current Diagram',
+        classes: [],
+        relations: []
+      };
+      
+      const result = await this.umlDiagramProvider.generateSingleClass(
+        className,
+        relatedClasses,
+        diagram,
+        userMessage
+      );
+      
+      this.singleClassGeneratedSubject.next(result);
+      this.addAssistantMessage(
+        `✅ He generado la clase "${className}" con ${result.newClass.attributes?.length || 0} atributos y ${result.newRelations.length} relaciones. ¡Ya está agregada al canvas! 🎨`
+      );
+    } catch (error) {
+      console.error('Error al generar clase individual:', error);
+      this.addAssistantMessage(`❌ No pude generar la clase "${className}". Intenta con una descripción más clara.`);
+    }
+  }
+
+  /**
+   * Extrae nombres de clases del texto
+   */
+  private extractClassNames(text: string): string[] {
+    const words = text.split(/[\s,;y]+/).filter(w => w.length > 2);
+    return words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+  }
+
+  /**
+   * Establece el diagrama actual para el contexto
+   */
+  setCurrentDiagram(diagram: UMLDiagram): void {
+    this.currentDiagram = diagram;
   }
 }

@@ -1,0 +1,75 @@
+<div class="modal-overlay" [class.open]="isOpen" (click)="onClose()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2>📤 Exportar / Importar Diagrama</h2>
+      <button class="close-btn" (click)="onClose()">✕</button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <div class="export-section">
+        <h3>📤 Exportar</h3>
+        <div class="export-options">
+          <button class="export-btn image-btn" (click)="onExportImage()">
+            <span class="btn-icon">🖼️</span>
+            <div class="btn-content">
+              <strong>Exportar como Imagen</strong>
+              <small>PNG de alta calidad</small>
+            </div>
+          </button>
+
+          <button class="export-btn pdf-btn" (click)="onExportPDF()">
+            <span class="btn-icon">📄</span>
+            <div class="btn-content">
+              <strong>Exportar como PDF</strong>
+              <small>Documento PDF imprimible</small>
+            </div>
+          </button>
+
+          <div class="export-btn json-btn" style="opacity: 0.6; cursor: default;">
+            <span class="btn-icon">📋</span>
+            <div class="btn-content">
+              <strong>Exportar como JSON</strong>
+              <small>Ya disponible en el botón "Exportar JSON" del toolbar</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="import-section">
+        <h3>📥 Importar</h3>
+        <div class="import-options">
+          <button class="import-btn" (click)="onImportClick()">
+            <span class="btn-icon">📂</span>
+            <div class="btn-content">
+              <strong>Importar desde JSON</strong>
+              <small>Selecciona un archivo JSON del diagrama</small>
+            </div>
+          </button>
+          <input 
+            #fileInput
+            type="file" 
+            accept=".json,application/json" 
+            (change)="onFileSelected($event)"
+            style="display: none"
+          />
+        </div>
+        <div class="info-box">
+          <strong>ℹ️ Nota:</strong>
+          <p>Al importar un diagrama, se reemplazará el diagrama actual. Asegúrate de exportar tu trabajo actual antes de importar.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="onClose()">
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+

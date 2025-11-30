@@ -51,6 +51,14 @@
       </button> -->
 
       <button 
+        (click)="autoArrangeClasses()" 
+        [disabled]="classes.length === 0" 
+        class="btn btn-secondary"
+        [title]="classes.length === 0 ? 'Crea clases primero' : 'Ordenar y ajustar clases automáticamente'">
+        <span class="icon">📐</span> Ordenar Clases
+      </button>
+
+      <button 
         (click)="openImproveAgent()" 
         [disabled]="classes.length === 0" 
         class="btn btn-success"
@@ -61,6 +69,9 @@
       <button (click)="clearCanvas()" class="btn btn-danger">
         <span class="icon">🗑️</span> Limpiar
       </button>
+      <!-- <button (click)="openExportImportModal()" class="btn btn-info">
+        <span class="icon">📤</span> Exportar/Importar
+      </button> -->
       <button (click)="exportDiagram()" class="btn btn-info">
         <span class="icon">�</span> Exportar 
       </button>
@@ -318,6 +329,16 @@
       (close)="showImproveAgent = false"
       (diagramImproved)="onDiagramImproved($event)"
     ></app-improve-agent-modal>
+
+    <!-- Modal de Exportar/Importar -->
+    <app-export-import-modal
+      [isOpen]="showExportImportModal"
+      [currentDiagram]="diagramService.getDiagram()"
+      (close)="showExportImportModal = false"
+      (exportImage)="exportAsImage()"
+      (exportPDF)="exportAsPDF()"
+      (importJson)="importFromJson($event)"
+    ></app-export-import-modal>
 
     <!-- Visor de código para ZIPs generados -->
     <app-code-viewer *ngIf="showCodeViewer" [zipBlob]="lastZipBlob" (close)="showCodeViewer = false"></app-code-viewer>

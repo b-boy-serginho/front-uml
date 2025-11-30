@@ -70,9 +70,10 @@ export class RegisterComponent {
   register() {
     if (this.myForm.valid) {
       const { name, lastName, userName, email, password } = this.myForm.value;
+      this.errorMessage = '';
       
       this.authService.register({ name, lastName, userName, email, password }).subscribe({
-        next: () => this.router.navigate(['/diagrama']),
+        next: () => this.router.navigate(['/projects']),
         error: (err) => {
           this.errorMessage = 'Error en el registro: ' + (err.error?.message || err.statusText);
         }

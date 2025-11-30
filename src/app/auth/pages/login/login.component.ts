@@ -33,13 +33,16 @@ export class LoginComponent {
     this.showPassword = !this.showPassword
   }
   login() {
-    const { email, password } = this.myForm.value;
-    this.authService.login(email, password).subscribe(
-      {
-        next: () => this.router.navigate(['/diagrama']),
-        error: (err) => {
-          this.errorMessage = 'Error de autenticación: ' + (err.error?.message || err.statusText);
-        }
-      });
+    if (this.myForm.valid) {
+      const { email, password } = this.myForm.value;
+      this.errorMessage = '';
+      this.authService.login(email, password).subscribe(
+        {
+          next: () => this.router.navigate(['/projects']),
+          error: (err) => {
+            this.errorMessage = 'Error de autenticación: ' + (err.error?.message || err.statusText);
+          }
+        });
+    }
   }
 }

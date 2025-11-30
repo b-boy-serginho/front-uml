@@ -161,6 +161,77 @@ No incluyas métodos.
   }
 
   /**
+   * Genera una clase individual que se relacione con clases existentes
+   */
+  async generateSingleClass(
+    className: string,
+    relatedClasses: string[],
+    currentDiagram: UMLDiagram,
+    additionalContext?: string
+  ): Promise<{ newClass: any, newRelations: any[] }> {
+    try {
+      const existingClassesContext = currentDiagram.classes
+        .filter(c => relatedClasses.includes(c.name))
+        .map(c => `- ${c.name} (id: ${c.id}): ${c.attributes.map(a => `${a.name}:${a.type}`).join(', ')}`)
+        .join('\n');
+
+      const prompt = `Genera una clase UML llamada "${className}" que se relacione con las siguientes clases existentes:
+
+${existingClassesContext}
+
+${additionalContext ? `Contexto adicional: ${additionalContext}` : ''}
+
+Genera SOLO la nueva clase "${className}" con:
+- Al menos 3-5 atributos relevantes (tipos válidos para Spring Boot: String, Integer, Long, Double, Boolean, LocalDate, LocalDateTime, BigDecimal)
+- Relaciones apropiadas con las clases mencionadas
+
+RETORNA EXACTAMENTE este formato JSON:
+{
+  "newClass": {
+    "name": "${className}",
+    "attributes": [
+      { "name": "nombreAtributo", "type": "String", "visibility": "private" }
+    ],
+    "position": { "x": 400, "y": 300 }
+  },
+  "newRelations": [
+    {
+      "toClassName": "NombreDeLaClaseRelacionada",
+      "type": "association",
+      "label": "descripción de la relación",
+      "multiplicity": { "from": "1", "to": "*" }
+    }
+  ]
+}
+
+IMPORTANTE: En newRelations usa "toClassName" con el NOMBRE de la clase (no el ID).`;
+
+      const response = await this.ai.models.generateContent({
+        model: "gemini-2.0-flash",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json"
+        }
+      });
+      
+      console.log('🤖 Respuesta raw de Gemini:', response.text);
+      const result = JSON.parse(response.text || '{}');
+      console.log('📋 Resultado parseado:', result);
+      
+      // Validar que tenga la estructura correcta
+      if (!result.newClass || !result.newClass.name) {
+        console.error('❌ La IA no generó el nombre de la clase correctamente');
+        throw new Error('Respuesta de IA incompleta: falta el nombre de la clase');
+      }
+
+      return result;
+    } catch (error) {
+      console.error('Error al generar clase individual:', error);
+      throw error;
+    }
+  }
+
+  /**
    * ================== AGENTE MEJORADOR DE DIAGRAMAS ==================
    * Mejora un diagrama existente mediante un proceso de múltiples pasos
    */
